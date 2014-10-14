@@ -10,13 +10,15 @@
 <%
 
     BraintreeGateway gateway = new BraintreeGateway(
-            Environment.SANDBOX,
-            "4963ym4c6dxrgzng",
-            "w5f9q49md3nwjd8q",
-            "6ef75cc2d78f5e599ede4fba61021474"
+        Environment.SANDBOX,
+        "4963ym4c6dxrgzng",
+        "w5f9q49md3nwjd8q",
+        "6ef75cc2d78f5e599ede4fba61021474"
     );  
     
     String clientToken = gateway.clientToken().generate();
+    
+    request.getSession().setAttribute("gateway", gateway);
 %>
 <html>
     <head>
@@ -27,7 +29,7 @@
     </head>
     <body>
         <div>Chocolate makes you happy!</div>
-        <form id="checkout" method="post" action="/checkout">
+        <form id="checkout" method="post" action="/candies/checkout">
             <div id="dropin"></div>
             <input type="submit" value="Pay $1">
         </form>
