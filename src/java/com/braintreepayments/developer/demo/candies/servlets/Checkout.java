@@ -58,17 +58,25 @@ public class Checkout extends HttpServlet {
 
             if (result.isSuccess()) {
                 // transaction successfully submitted for settlement
-                out.println(result.getTransaction().getProcessorSettlementResponseCode());
-                out.println(result.getTransaction().getProcessorSettlementResponseText());
+                Transaction transaction = result.getTarget();
+                out.println("<h1> Transaction ID: " + transaction.getId() + "</h1>");
+                out.println("<h2>" + transaction.getProcessorResponseText() + "</h2>");
                 
-            } else if (result.getErrors().getAllDeepValidationErrors().size() > 0) {
-                out.println("<h1>payment_method_nonce is " + request.getParameter("payment_method_nonce")+ "</h1>");
-                out.println("<h2>Error is " + result.getMessage() + "</h2>");
-                for (ValidationError error : result.getErrors().getAllDeepValidationErrors()) {
-                    out.println(error.getMessage() + "<br />");
-                }
+            } else if (result.getTransaction() != null) {
+                out.println("Message: " + result.getMessage());
+                Transaction transaction = result.getTransaction();
+                out.println("Error processing transaction:");
+                out.println("  Status: " + transaction.getStatus());
+                out.println("  Code: " + transaction.getProcessorResponseCode());
+                out.println("  Text: " + transaction.getProcessorResponseText());
+                
             } else {
-                out.println("Error is " + result.getMessage());
+                out.println("Message: " + result.getMessage());
+                for (ValidationError error : result.getErrors().getAllDeepValidationErrors()) {
+                    out.println("Attribute: " + error.getAttribute());
+                    out.println("  Code: " + error.getCode());
+                    out.println("  Message: " + error.getMessage());
+                }
             }
         
             out.println("</body>");
