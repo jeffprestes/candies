@@ -18,6 +18,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 /**
  *
@@ -61,6 +66,43 @@ public class Checkout extends HttpServlet {
                 Transaction transaction = result.getTarget();
                 out.println("<h1> Transaction ID: " + transaction.getId() + "</h1>");
                 out.println("<h2>" + transaction.getProcessorResponseText() + "</h2>");
+                out.println("<h3>Releasing candies...</h3>");
+                
+                try {
+                    String topic        = "jeffprestes/candies/world";   
+                    int qos             = 2;
+                    String broker       = "tcp://iot.eclipse.org:1883";
+                    String clientId     = "2C:41:38:00:DD:AD";
+                    String msg          = "release";
+                    MemoryPersistence persistence = new MemoryPersistence();
+                    MqttClient client;
+
+                    client = new MqttClient(broker, clientId, persistence);
+                    MqttConnectOptions connOpts = new MqttConnectOptions();
+                    connOpts.setCleanSession(true);
+
+                    client.connect(connOpts);
+
+                    MqttMessage message = new MqttMessage(msg.getBytes());
+                    message.setQos(qos);
+
+                    client.publish(topic, message);
+
+                    client.close();
+
+                    client = null;
+                    
+                    out.println("Message sent to machine to release the candy");
+                    
+                } catch (MqttException me)     {
+                    System.out.println("reason "+me.getReasonCode());
+                    System.out.println("msg "+me.getMessage());
+                    System.out.println("loc "+me.getLocalizedMessage());
+                    System.out.println("cause "+me.getCause());
+                    System.out.println("excep "+me);
+                    me.printStackTrace();
+                    out.println("Error sending message to Machine");
+                }
                 
             } else if (result.getTransaction() != null) {
                 out.println("Message: " + result.getMessage());
