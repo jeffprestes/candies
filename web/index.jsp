@@ -29,7 +29,7 @@
     </head>
     <body>
         <div>Chocolate makes you happy!</div>
-        <form id="checkout" method="post" action="/candies/checkout">
+        <form id="checkout" method="post" action="http://5e1f1bc9.ngrok.com/candies/checkout">
             <div id="dropin"></div>
             <input type="submit" value="Pay $1">
         </form>

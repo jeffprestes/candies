@@ -87,6 +87,8 @@ public class Checkout extends HttpServlet {
                     message.setQos(qos);
 
                     client.publish(topic, message);
+                    
+                    client.disconnect();
 
                     client.close();
 
