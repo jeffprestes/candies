@@ -72,7 +72,7 @@ public class Checkout extends HttpServlet {
                     String topic        = "jeffprestes/candies/world";   
                     int qos             = 2;
                     String broker       = "tcp://iot.eclipse.org:1883";
-                    String clientId     = "2C:41:38:00:DD:AD";
+                    String clientId     = "candy-server";
                     String msg          = "release";
                     MemoryPersistence persistence = new MemoryPersistence();
                     MqttClient client;
