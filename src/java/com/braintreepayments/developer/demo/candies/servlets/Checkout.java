@@ -6,14 +6,19 @@
 package com.braintreepayments.developer.demo.candies.servlets;
 
 import com.braintreegateway.BraintreeGateway;
-import com.braintreegateway.Environment;
 import com.braintreegateway.Result;
 import com.braintreegateway.Transaction;
 import com.braintreegateway.TransactionRequest;
 import com.braintreegateway.ValidationError;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +35,37 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
  */
 public class Checkout extends HttpServlet {
 
+    private String mqttServer = "";
+    private String mqttQueue = "";
+    private String mqttPort = "";
+    private String mqttClientId = "";
+    
+    @Override
+    public void init (ServletConfig cfg) throws ServletException    {
+        
+        try {
+            //InputStream inputStream = Checkout.class.getResourceAsStream("/var/candies/candies.properties");
+            File arq = new File("/var/candies/candies.properties");
+            FileReader inputStream = new FileReader(arq);
+            Properties prop = new Properties();
+            prop.load(inputStream);
+            
+            this.mqttQueue = prop.getProperty("mqttqueue");
+            this.mqttServer = prop.getProperty("mqttserver");
+            this.mqttClientId = prop.getProperty("mqttclientid");
+            this.mqttPort = prop.getProperty("mqttport");
+            
+            
+        } catch (Exception ex) {
+            Logger.getLogger(Checkout.class.getName()).log(Level.SEVERE, "Checkout Servlet could not load MQTT Properties. Loading default...", ex);
+            this.mqttQueue = "jeffprestes/candies/world";
+            this.mqttServer = "iot.eclipse.org";
+            this.mqttClientId = "candies-jeff-localserver";
+            this.mqttPort = "1883";
+        }
+        
+    }
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -69,10 +105,10 @@ public class Checkout extends HttpServlet {
                 out.println("<h3>Releasing candies...</h3>");
                 
                 try {
-                    String topic        = "jeffprestes/candies/world";   
+                    String topic        = this.mqttQueue;   
                     int qos             = 2;
-                    String broker       = "tcp://iot.eclipse.org:1883";
-                    String clientId     = "candy-server";
+                    String broker       = "tcp://" + this.mqttServer + ":" + this.mqttPort;
+                    String clientId     = this.mqttClientId;
                     String msg          = "release";
                     MemoryPersistence persistence = new MemoryPersistence();
                     MqttClient client;
